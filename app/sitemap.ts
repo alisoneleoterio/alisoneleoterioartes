@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date()
 
   // Páginas estáticas
-  const staticPages = [
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
       lastModified: currentDate,
@@ -31,13 +31,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   // Páginas dinâmicas (obras)
-  const artworkPages = artworks.map((artwork) => ({
+  const artworkPages: MetadataRoute.Sitemap = artworks.map((artwork) => ({
     url: `${baseUrl}/works/${artwork.id}`,
     lastModified: currentDate,
     changeFrequency: "monthly",
     priority: 0.6,
   }))
 
+  // Combinar e retornar
   return [...staticPages, ...artworkPages]
 }
 

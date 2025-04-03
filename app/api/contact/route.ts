@@ -8,7 +8,7 @@ const limiter = rateLimit({
   uniqueTokenPerInterval: 500, // Máximo 500 usuários por intervalo
 })
 
-export async function POST(request) {
+export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "anonymous"
   const startTime = Date.now()
 
@@ -45,7 +45,7 @@ export async function POST(request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    if (error.message === "Rate limit exceeded") {
+    if (error instanceof Error && error.message === "Rate limit exceeded") {
       logger.security("Limite de taxa excedido", { ip })
       return NextResponse.json(
         { error: "Limite de taxa excedido. Por favor, tente novamente mais tarde." },

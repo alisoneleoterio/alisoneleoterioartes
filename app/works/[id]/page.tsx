@@ -10,12 +10,30 @@ import { artworks } from "@/data/artworks"
 import { ArtworkCard } from "@/components/artwork-card"
 import { createWhatsAppLink } from "@/lib/utils"
 
-export default function ArtworkDetail({ params }) {
-  const [artwork, setArtwork] = useState(null)
+interface Params {
+  id: string;
+  category?: string; // Propriedade opcional
+}
+
+export default function ArtworkDetail({ params }: { params: Params }) {
+  interface Artwork {
+    id: number;
+    title: string;
+    medium: string;
+    year: string;
+    price: string;
+    category: string;
+    imagePath: string;
+    description: string;
+    dimensions: string;
+    moreImages: string[];
+  }
+
+  const [artwork, setArtwork] = useState<Artwork | null>(null)
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
-  const [relatedWorks, setRelatedWorks] = useState([])
+  const [relatedWorks, setRelatedWorks] = useState<Artwork[]>([])
 
   useEffect(() => {
     // Buscar a obra específica
@@ -49,7 +67,7 @@ export default function ArtworkDetail({ params }) {
 
     if (liked) {
       // Remover da lista de curtidas
-      const updatedLikes = likedArtworks.filter((id) => id !== artwork.id)
+      const updatedLikes: number[] = likedArtworks.filter((id: number) => id !== artwork.id)
       localStorage.setItem("likedArtworks", JSON.stringify(updatedLikes))
     } else {
       // Adicionar à lista de curtidas
@@ -218,4 +236,5 @@ export default function ArtworkDetail({ params }) {
     </main>
   )
 }
+
 

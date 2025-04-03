@@ -19,8 +19,8 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState("")
-  const [recaptchaToken, setRecaptchaToken] = useState(null)
-  const recaptchaRef = useRef(null)
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null)
 
   // Inicializar EmailJS
 
@@ -31,7 +31,7 @@ export default function Contact() {
     setFormData((prev: typeof formData) => ({ ...prev, [name]: sanitizedValue }))
   }
 
-  const handleRecaptchaChange = (token) => {
+  const handleRecaptchaChange = (token: string | null): void => {
     setRecaptchaToken(token)
   }
 
@@ -50,26 +50,26 @@ export default function Contact() {
       reset: () => void
     } | null
   }
-
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     // Verificar limitação de taxa (mínimo de 10 segundos entre envios)
-    const now = Date.now()
+    const now = Date.now();
     if (now - lastSubmissionTime < 10000) {
-      setError("Por favor, aguarde um momento antes de enviar novamente.")
-      return
+      setError("Por favor, aguarde um momento antes de enviar novamente.");
+      return;
     }
-
+  
     // Validar reCAPTCHA
     if (!recaptchaToken) {
-      setError("Por favor, complete a verificação do reCAPTCHA.")
-      return
+      setError("Por favor, complete a verificação do reCAPTCHA.");
+      return;
     }
-
-    setIsSubmitting(true)
-    setError("")
-
+  
+    setIsSubmitting(true);
+    setError("");
+  
     try {
       // Enviar email usando EmailJS
       await emailjs.send(
@@ -82,35 +82,40 @@ export default function Contact() {
           message: formData.message,
         },
         "u5vMmHUu8UIKRhuLZ" // Passe a chave pública aqui
-      )
-
-      logger.info("Formulário de contato enviado com sucesso", { email: formData.email })
-
+      );
+  
+      logger.info("Formulário de contato enviado com sucesso", { email: formData.email });
+  
       // Atualizar o tempo do último envio para limitação de taxa
-      setLastSubmissionTime(now)
-
+      setLastSubmissionTime(now);
+  
       // Resetar formulário
-      setFormData({ name: "", email: "", subject: "", message: "" })
-      setIsSubmitted(true)
-      setRecaptchaToken(null)
-
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      setIsSubmitted(true);
+      setRecaptchaToken(null);
+  
       // Resetar reCAPTCHA
       if (recaptchaRef.current) {
-        recaptchaRef.current.reset()
+        recaptchaRef.current.reset();
       }
-
+  
       // Resetar mensagem de sucesso após 5 segundos
       setTimeout(() => {
-        setIsSubmitted(false)
-      }, 5000)
+        setIsSubmitted(false);
+      }, 5000);
     } catch (err) {
-      logger.error("Erro ao enviar formulário de contato", err)
-      setError("Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.")
-      console.error("Erro ao enviar formulário:", err)
+      if (err instanceof Error) {
+        logger.error("Erro ao enviar formulário de contato", err);
+        setError(err.message); // Passa a mensagem do erro como string
+        console.error("Erro ao enviar formulário:", err.message);
+      } else {
+        logger.error("Erro desconhecido ao enviar formulário de contato", err);
+        setError("Ocorreu um erro desconhecido. Por favor, tente novamente.");
+      }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <main className="min-h-screen py-20">
